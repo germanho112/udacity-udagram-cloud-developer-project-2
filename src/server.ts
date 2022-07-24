@@ -1,4 +1,4 @@
-import express from 'express';
+import express, {Router, Request, Response} from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
@@ -14,21 +14,21 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   app.use(bodyParser.json());
 
   // @TODO1 IMPLEMENT A RESTFUL ENDPOINT
-  app.get("/filteredimage", async(req, res) => {
-    const {image_url} = req.query
+  app.get("/filteredimage", async (req: Request, res: Response) => {
+    const imageUrl: string = req.query.image_url
 
-    if (!image_url){
+    if (!imageUrl){
       return res.status(400).send({ message: 'Image URL is missing.' });
     }
     
     const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png|svg)/
 
-    if (!(image_url.match(imageUrlRegex))){
+    if (!(imageUrl.match(imageUrlRegex))){
       return res.status(400).send({ message: 'Invalid Image Url' });
     }
 
     try {
-      const result = await filterImageFromURL(image_url)  
+      const result = await filterImageFromURL(imageUrl)  
 
       res.status(200).sendFile(result, async() => {
         await deleteLocalFiles([result])
